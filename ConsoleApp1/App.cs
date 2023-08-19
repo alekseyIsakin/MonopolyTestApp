@@ -143,12 +143,14 @@ namespace ConsoleApp1
     {
         public static void Main()
         {
-            var rnd = new Random(0);
-            for (var i = 0; i < 1; i++)
+            var pallets = new List<Palett>();
+            var rnd = new Random();
+
+            for (var i = 0; i < 1000; i++)
             {
                 var p = new Palett(
-                    width: 10,
-                    length: 10,
+                    width: 10 + rnd.Next(3) * 5,
+                    length: 10 + rnd.Next(3) * 5,
                     heigth: 10
                     );
 
@@ -163,34 +165,44 @@ namespace ConsoleApp1
 
                     if (mnf_chance <= .3 || mnf_chance >= .7)
                     {
-                        manuf = new DateOnly(2020,1,1);
+                        manuf = new DateOnly(2020, 1, 1);
                         manuf = manuf?.AddDays(rnd.Next(100));
                         manuf = manuf?.AddMonths(rnd.Next(5));
                     }
-                    if(mnf_chance > .3) 
+                    if (mnf_chance > .3)
                     {
                         expir = new DateOnly(2020, 6, 1);
                         expir = expir?.AddDays(rnd.Next(100));
                         expir = expir?.AddMonths(3 + rnd.Next(5));
 
                     }
-                    Console.WriteLine( expir != null && manuf != null);
-
                     var b = new Box(
                         width: 10,
-                        length: 11,
-                        heigth: 5 + rnd.Next(10),
-                        weight: 5 + rnd.Next(10),
+                        length: 2 + rnd.Next(20),
+                        heigth: 1 + rnd.Next(40),
+                        weight: 2 + rnd.Next(20),
                         manufactDate: manuf,
                         expirationDate: expir
                         );
-                    p.AddBox(b);
+                    if (p.AddBox(b) == false) ;
+                    {
+                        if (rnd.NextDouble() > .5)
+                            j--;
+                    }
 
                 }
+                pallets.Add(p);
+            }
+            var t = from p in pallets orderby p.ExpirationDate group p by p.ExpirationDate;
 
-                Console.WriteLine(p.volume);
+            var sb = new StringBuilder();
+            foreach( var date in t)
+            {
+                foreach( var palett in date)
+                    sb.Append($"[{palett.id}] {date.Key}\n");
             }
 
+            Console.WriteLine(sb);
         }
     }
 }
