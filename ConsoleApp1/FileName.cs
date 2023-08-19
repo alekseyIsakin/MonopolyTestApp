@@ -56,13 +56,9 @@ namespace ConsoleApp1
 
         public DateOnly ExpirationDate
         {
-            get
-            {
-                return 
-                    _expirationDate ??
-                    _manufactDate?.AddDays(100) ?? 
-                    DateOnly.MinValue;
-            }
+            get => _expirationDate ??
+                   _manufactDate?.AddDays(100) ??
+                   DateOnly.MinValue;
         }
 
         public Guid id { get; }
@@ -95,7 +91,7 @@ namespace ConsoleApp1
         }
         public int Boxes_height
         {
-            get => _boxes.Aggregate(0, (heigth, box) => heigth + box.heigth);
+            get =>  _boxes.Aggregate(0, (heigth, box) => heigth + box.heigth);
         }
         public int Boxes_weight
         {
@@ -106,6 +102,13 @@ namespace ConsoleApp1
             get => _boxes.Aggregate(0, (volume, box) => volume + box.volume); 
         }
         const int P_weight = 30;
+
+        public DateOnly ExpirationDate
+        {
+            get => _boxes.Count > 0 ?
+                _boxes.Min(box => box.ExpirationDate) :
+                DateOnly.MinValue;
+        }
 
         public Guid id { get; }
         public int width { get; }
@@ -126,9 +129,14 @@ namespace ConsoleApp1
         {
             return _boxes;
         }
-        public void AddBox(Box box)
+        public bool AddBox(Box box)
         {
-            _boxes.Add(box);
+            var can_hold = box.width <= width && box.length <= length;
+            
+            if (can_hold)
+                _boxes.Add(box);
+
+            return can_hold;
         }
     }
     public class App
@@ -170,7 +178,7 @@ namespace ConsoleApp1
 
                     var b = new Box(
                         width: 10,
-                        length: 10,
+                        length: 11,
                         heigth: 5 + rnd.Next(10),
                         weight: 5 + rnd.Next(10),
                         manufactDate: manuf,
@@ -179,7 +187,7 @@ namespace ConsoleApp1
                     p.AddBox(b);
 
                 }
-                //int t = boxes.Aggregate(0, (volume, box) => volume + box.volume);
+
                 Console.WriteLine(p.volume);
             }
 
