@@ -1,8 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Linq;
-
-namespace ConsoleApp1
+﻿namespace ConsoleApp1
 {
     public struct PalletDateGroup
     {
@@ -30,7 +26,8 @@ namespace ConsoleApp1
 
     public class Box : IEquatable<Box>
     {
-        public class ExpirationDateViolationException : Exception 
+        public const int ManufactDateOffset = 100;
+        public class ExpirationDateViolationException : Exception
         {
             public ExpirationDateViolationException(string message) : base(message) { }
         }
@@ -88,7 +85,7 @@ namespace ConsoleApp1
         public DateOnly ExpirationDate
         {
             get => _expirationDate ??
-                   _manufactDate?.AddDays(100) ??
+                   _manufactDate?.AddDays(ManufactDateOffset) ??
                    DateOnly.MinValue;
         }
 
@@ -196,7 +193,7 @@ namespace ConsoleApp1
             int ind = _boxes.FindIndex(b => b.Id == boxID);
 
             if (ind == -1) return false;
-            
+
             _boxes.RemoveAt(ind);
             return true;
         }
