@@ -30,6 +30,10 @@ namespace ConsoleApp1
 
     public class Box
     {
+        public class ExpirationDateViolationException : Exception 
+        {
+            public ExpirationDateViolationException(string message) : base(message) { }
+        }
         public Box(
             Guid id,
             int width, int length, int heigth,
@@ -37,6 +41,21 @@ namespace ConsoleApp1
             DateOnly? manufactDate,
             DateOnly? expirationDate)
         {
+            if (width <= 0 || 
+                heigth <= 0 || 
+                length <= 0 || 
+                weight <= 0)
+            {
+                throw new ArgumentException($"width, height, length or weight [{width}][{heigth}][{length}][{weight}] less than 0");
+            }
+
+            if (manufactDate != null &&
+                expirationDate != null &&
+                manufactDate > expirationDate)
+            {
+                throw new ExpirationDateViolationException($"Manufactiondate < expiration date\n [{manufactDate} < {expirationDate}]");
+            }
+
             this.Id = id;
             this.Width = width;
             this.Length = length;
