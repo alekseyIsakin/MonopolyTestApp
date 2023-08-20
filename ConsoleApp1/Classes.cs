@@ -206,7 +206,7 @@ namespace ConsoleApp1
         }
         public bool AddBox(Box box)
         {
-            var can_hold = (box.Width <= Width && box.Length <= Length) ||
+            var can_hold = (box.Width <= Width && box.Length <= Length) &&
                            (box.Width <= Length && box.Width <= Length);
 
             if (can_hold)

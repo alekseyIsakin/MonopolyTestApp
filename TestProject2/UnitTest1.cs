@@ -40,7 +40,7 @@ namespace TestProject2
 
         }
 
-        public static Box CreateBox(int width = 1, int length = 1, int height = 1, int weight = 1)
+        public static Box CreateBoxWrapper(int width = 1, int length = 1, int height = 1, int weight = 1)
             => new BoxWrapper 
             { 
                 W_Width = width, 
@@ -67,7 +67,7 @@ namespace TestProject2
                 var b4 = new Box(1, 1, 1, 1, new DateOnly(2020, 9, 1), new DateOnly(2020, 7, 1));
                 Assert.Fail("Expiration Date violation");
             }
-            catch (Box.ExpirationDateViolationException e) { }
+            catch (Box.ExpirationDateViolationException) { }
 
             Assert.True(b1.ExpirationDate == new DateOnly(2020, 4, 10));
             Assert.True(b2.ExpirationDate == new DateOnly(2020, 9, 1));
@@ -85,11 +85,11 @@ namespace TestProject2
                 var b4 = new Box(width, length, height, weight, DateOnly.MinValue, DateOnly.MaxValue);
                 Assert.Fail("args must be > 0");
             }
-            catch (ArgumentException e) { }
+            catch (ArgumentException) { }
         }
 
         [Theory]
-        [InlineData(14, 1, 1, 4, 6, 2)]
+        [InlineData(16, 3, 1, 4, 6, 2)]
         [InlineData(1, 1)]
         [InlineData(36, 5, 1, 10, 20)]
         public void TestPalletHeight(int expected, int pallet_h, params int[] height)
@@ -99,15 +99,15 @@ namespace TestProject2
             {
                 p1.AddBox(new Box(1, 1, h, 1, DateOnly.MinValue, DateOnly.MaxValue));
             }
-            Assert.True(expected == p1.Heigth);
+            Assert.Equal(expected, p1.Heigth);
         }
 
-        public static IEnumerable<object[]> data => new List<object[]> { 
-            new object[] {4, CreateBox(), CreateBox(), CreateBox(), CreateBox() } 
+        public static IEnumerable<object[]> DataAddRemoveBox => new List<object[]> { 
+            new object[] {4, CreateBoxWrapper(), CreateBoxWrapper(), CreateBoxWrapper(), CreateBoxWrapper() } 
         };
 
         [Theory]
-        [MemberData(nameof(data))]
+        [MemberData(nameof(DataAddRemoveBox))]
         public void TestAddRemoveBox(int box_cnt, params Box[] boxes)
         {
             var pallet = CreatePallet();
@@ -121,25 +121,36 @@ namespace TestProject2
             pallet.RemoveBox(boxes[0]);
             Assert.Equal(pallet.GetBoxes().Count, box_cnt - 1);
 
+            Assert.False(pallet.RemoveBox(boxes[0]));
+            Assert.Equal(pallet.GetBoxes().Count, box_cnt - 1);
+
             pallet.RemoveBoxByID(boxes[1].Id);
             Assert.Equal(pallet.GetBoxes().Count, box_cnt - 2);
 
-            Assert.False(
-                pallet.RemoveBox(boxes[1])
-                );
+            Assert.False( pallet.RemoveBox(boxes[1]) );
             Assert.Equal(pallet.GetBoxes().Count, box_cnt - 2);
         }
 
-        [Theory]
-        [MemberData(nameof(data))]
-        public void TestGetBox(int box_cnt, params Box[] boxes)
-        {
-            var pallet = CreatePallet();
+        public static IEnumerable<object[]> DataPalletFit => new List<object[]> {
+            new object[] {2, CreatePallet(5,5), CreateBoxWrapper(5, 5), CreateBoxWrapper(4, 4) },
+            new object[] {2, CreatePallet(5,5), CreateBoxWrapper(4, 5), CreateBoxWrapper(5, 4) },
+            new object[] {0, CreatePallet(5,5), 
+                CreateBoxWrapper(6, 5), 
+                CreateBoxWrapper(6, 4),
+                CreateBoxWrapper(5, 6),
+                CreateBoxWrapper(4, 6),
+            }
+        };
 
+        [Theory]
+        [MemberData(nameof(DataPalletFit))]
+        public void TestPalletFit(int box_cnt_res, Pallet pallet, params Box[] boxes)
+        {
             foreach (Box b in boxes)
             {
+                pallet.AddBox(b);
             }
+            Assert.Equal(box_cnt_res, pallet.GetBoxes().Count);
         }
-
     }
 }
