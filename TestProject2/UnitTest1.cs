@@ -1,12 +1,26 @@
 using ConsoleApp1;
+using System.Text;
 
 namespace TestProject2
 {
-    public class UnitTest1
+    public class UnitTests
     {
         internal class BoxWrapper : Box
         {
-            public BoxWrapper() : base() { }
+            public BoxWrapper() : base() 
+            {
+                W_Width = 1;
+                W_Length = 1;
+                W_Height = 1;
+                W_Weight = 1;
+                W_ManufactDate = DateOnly.MinValue;
+                W_ExpirationDate = DateOnly.MaxValue;
+            }
+            public Guid W_Guid 
+            { 
+                get => Id; 
+                set => Id = value; 
+            }
             public int W_Width
             {
                 get => Width;
@@ -63,6 +77,16 @@ namespace TestProject2
             };
 
 
+        public static Pallet CreatePallet(List<Box> boxes, int width = 1, int length = 1, int height = 1)
+        {
+            var p = new Pallet(width, length, height);
+            foreach (Box b in boxes)
+            {
+                p.AddBox(b);
+            }
+
+            return p;
+        }
         public static Pallet CreatePallet(int width = 1, int length = 1, int height = 1)
             => new Pallet(width, length, height);
 
@@ -109,7 +133,7 @@ namespace TestProject2
         [MemberData(nameof(DataPalletHeight))]
         public void TestPalletHeight(int expected, int pallet_h, params int[] height)
         {
-            var p1 = CreatePallet(height: pallet_h); 
+            var p1 = CreatePallet(height: pallet_h);
             foreach (int h in height)
             {
                 p1.AddBox(CreateBoxWrapper(height: h));
@@ -210,7 +234,7 @@ namespace TestProject2
 
         public static IEnumerable<object[]> DataPalletExpirationDate => new List<object[]>
         {
-            new object[] { new DateOnly(2020,1,1).AddDays(Box.ManufactDateOffset), 
+            new object[] { new DateOnly(2020,1,1).AddDays(Box.ManufactDateOffset),
                 CreateBoxWrapper(new DateOnly(2020,1,1), null),
                 CreateBoxWrapper(new DateOnly(2020,5,7), null),
                 CreateBoxWrapper(new DateOnly(2020,2,3), null),

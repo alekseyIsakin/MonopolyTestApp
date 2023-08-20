@@ -8,7 +8,7 @@ namespace ConsoleApp1
         {
             var pallets = new List<Pallet>();
             var rnd = new Random(0);
-            int n = 10;
+            int n = 500;
             for (var i = 0; i < n; i++)
             {
                 var p = new Pallet(
@@ -17,9 +17,7 @@ namespace ConsoleApp1
                     heigth: 10
                     );
 
-
-
-                List<Box> boxes = new List<Box>();
+                var boxes = new List<Box>();
                 for (var j = 0; j < 2 + rnd.Next(8); j++)
                 {
                     DateOnly? manuf = null;
@@ -29,12 +27,12 @@ namespace ConsoleApp1
                     if (mnf_chance <= .3 || mnf_chance >= .7)
                     {
                         manuf = new DateOnly(2020, 1, 1);
-                        manuf = manuf?.AddDays(rnd.Next(5) * 20);
+                        manuf = manuf?.AddDays(rnd.Next(20) * 5);
                     }
                     if (mnf_chance > .3)
                     {
                         expir = new DateOnly(2020, 6, 1);
-                        expir = expir?.AddDays(rnd.Next(5) * 20);
+                        expir = expir?.AddDays(rnd.Next(20) * 5);
 
                     }
                     Box b = new Box(
@@ -60,15 +58,16 @@ namespace ConsoleApp1
                 sb.Append($"\nGroup {group.Date}\n");
                 foreach (var pallet in group.Pallets.OrderBy(p => p.Weight))
                 {
-                    sb.Append($"pal | [{pallet.Id}] {group.Date}, weight: {pallet.Weight}, boxes: {pallet.GetBoxes().Count}\n");
-                    foreach (var dt in pallet.ExpirationDates)
+                    sb.Append($"pal | [{pallet.Id}] {group.Date}, \nweight: {pallet.Weight}, volume: {pallet.Volume}, boxes: {pallet.GetBoxes().Count}\n");
+                    foreach (var box in pallet.GetBoxes())
                     {
-                        sb.Append($"\t{dt}\n");
+                        sb.Append($"\t\t[{box.ExpirationDate}] volume: {box.Volume},\tweight: {box.Weight}\n");
                     }
                 }
             }
             var most_longest_pallets = Selector.GetLongestStored(pallets);
 
+            sb.AppendLine();
             foreach (var pallet in most_longest_pallets)
             {
                 sb.AppendLine($"[{pallet.Id}] {pallet.ExpirationDates.Max()}, volume: {pallet.Volume}");

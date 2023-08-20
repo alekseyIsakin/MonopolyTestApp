@@ -10,7 +10,9 @@
         public static IEnumerable<Pallet> GetLongestStored(IEnumerable<Pallet> pallets, int count = 3)
         {
             return pallets
-                .OrderByDescending(p => p.ExpirationDates.Max())
+                .OrderByDescending(p => p.ExpirationDates.Count > 0 ? 
+                    p.ExpirationDates.Max() :
+                    DateOnly.MinValue)
                 .Take(count)
                 .OrderBy(p => p.Volume);
         }
@@ -89,7 +91,7 @@
                    DateOnly.MinValue;
         }
 
-        public Guid Id { get; }
+        public Guid Id { get; protected set; }
         public int Width { get; protected set; }
         public int Length { get; protected set; }
         public int Heigth { get; protected set; }
