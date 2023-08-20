@@ -28,7 +28,7 @@ namespace ConsoleApp1
         }
     }
 
-    public class Box
+    public class Box : IEquatable<Box>
     {
         public class ExpirationDateViolationException : Exception 
         {
@@ -41,19 +41,19 @@ namespace ConsoleApp1
             DateOnly? manufactDate,
             DateOnly? expirationDate)
         {
-            if (width <= 0 || 
-                heigth <= 0 || 
-                length <= 0 || 
+            if (width <= 0 || heigth <= 0 || length <= 0 ||
                 weight <= 0)
             {
                 throw new ArgumentException($"width, height, length or weight [{width}][{heigth}][{length}][{weight}] less than 0");
             }
 
-            if (manufactDate != null &&
-                expirationDate != null &&
-                manufactDate > expirationDate)
+            if (manufactDate == null && expirationDate == null)
             {
-                throw new ExpirationDateViolationException($"Manufactiondate < expiration date\n [{manufactDate} < {expirationDate}]");
+                throw new ExpirationDateViolationException($"Expiration date is not provided");
+            }
+            if (CheckNewDates(manufactDate, expirationDate) == false)
+            {
+                throw new ExpirationDateViolationException($"Manufactiondate > expiration date\n [{manufactDate} < {expirationDate}]");
             }
 
             this.Id = id;
@@ -72,17 +72,18 @@ namespace ConsoleApp1
             DateOnly? expirationDate)
             : this(Guid.NewGuid(), width, length, heigth, weight, manufactDate, expirationDate)
         { }
-        private Box() { }
+        protected Box() { Id = Guid.NewGuid(); }
 
-        private DateOnly? _manufactDate;
-        private DateOnly? _expirationDate;
+        private static bool CheckNewDates(DateOnly? manufactDate, DateOnly? expirationDate)
+        {
+            return
+                manufactDate != null && expirationDate != null && manufactDate < expirationDate ||
+                manufactDate == null && expirationDate != null ||
+                expirationDate == null && manufactDate != null;
+        }
 
-        public void SetExpirationDate(int year, int month, int day)
-            => _expirationDate = new DateOnly(year, month, day);
-
-        public void SetManufactionDate(int year, int month, int day)
-            => _manufactDate = new DateOnly(year, month, day);
-
+        protected DateOnly? _manufactDate;
+        protected DateOnly? _expirationDate;
 
         public DateOnly ExpirationDate
         {
@@ -92,17 +93,40 @@ namespace ConsoleApp1
         }
 
         public Guid Id { get; }
-        public int Width { get; }
-        public int Length { get; }
-        public int Heigth { get; }
-        public int Weight { get; }
+        public int Width { get; protected set; }
+        public int Length { get; protected set; }
+        public int Heigth { get; protected set; }
+        public int Weight { get; protected set; }
         public int Volume { get => Width * Length * Heigth; }
+
+        public bool Equals(Box? box)
+        {
+
+            if (ReferenceEquals(this, box))
+            {
+                return true;
+            }
+            if (box == null)
+            {
+                return false;
+            }
+            if (Id == box.Id)
+            {
+                return true;
+            }
+            return false;
+
+        }
     }
 
     public class Pallet
     {
         public Pallet(Guid id, int width, int length, int heigth)
         {
+            if (width <= 0 || heigth <= 0 || length <= 0)
+            {
+                throw new ArgumentException($"width, height or length [{width}][{heigth}][{length}] less than 0");
+            }
             this.Id = id;
             this.Width = width;
             this.Length = length;
@@ -114,7 +138,7 @@ namespace ConsoleApp1
         public Pallet(int width, int length, int heigth)
             : this(Guid.NewGuid(), width, length, heigth) { }
 
-        private List<Box> _boxes { get; set; }
+        private List<Box> _boxes;
         public int P_heigth { get; }
         public int P_volume
         {
@@ -166,6 +190,19 @@ namespace ConsoleApp1
         public List<Box> GetBoxes()
         {
             return _boxes;
+        }
+        public bool RemoveBoxByID(Guid boxID)
+        {
+            int ind = _boxes.FindIndex(b => b.Id == boxID);
+
+            if (ind == -1) return false;
+            
+            _boxes.RemoveAt(ind);
+            return true;
+        }
+        public bool RemoveBox(Box box)
+        {
+            return _boxes.Remove(box);
         }
         public bool AddBox(Box box)
         {
