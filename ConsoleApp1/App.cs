@@ -14,7 +14,6 @@ namespace ConsoleApp1
             var pallets = new List<Pallet>();
             var rnd = new Random(0);
             int n = 10;
-            Box b = new Box();
             for (var i = 0; i < n; i++)
             {
                 var p = new Pallet(
@@ -43,7 +42,7 @@ namespace ConsoleApp1
                         expir = expir?.AddDays(rnd.Next(5) * 20);
 
                     }
-                    b = new Box(
+                    Box b = new Box(
                         width: 10,
                         length: 2 + rnd.Next(20),
                         heigth: 1 + rnd.Next(40),

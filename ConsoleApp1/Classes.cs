@@ -27,6 +27,7 @@ namespace ConsoleApp1
                 .Select(group => new PalletDateGroup { Date = group.Key, Pallets = group.ToList() });
         }
     }
+
     public class Box
     {
         public Box(
@@ -52,7 +53,7 @@ namespace ConsoleApp1
             DateOnly? expirationDate)
             : this(Guid.NewGuid(), width, length, heigth, weight, manufactDate, expirationDate)
         { }
-        public Box() { }
+        private Box() { }
 
         private DateOnly? _manufactDate;
         private DateOnly? _expirationDate;
