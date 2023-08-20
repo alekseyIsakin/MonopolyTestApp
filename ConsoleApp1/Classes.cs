@@ -7,7 +7,7 @@
     }
     public class Selector
     {
-        public static IEnumerable<Pallet> GetLongestStored(IEnumerable<Pallet> pallets, int count = 3)
+        public static IEnumerable<Pallet> GetPalletsWithLongestShelfLife(IEnumerable<Pallet> pallets, int count = 3)
         {
             return pallets
                 .OrderByDescending(p => p.ExpirationDates.Count > 0 ? 
@@ -46,10 +46,12 @@
                 throw new ArgumentException($"width, height, length or weight [{width}][{heigth}][{length}][{weight}] less than 0");
             }
 
+            // at least one property should be not null
             if (manufactDate == null && expirationDate == null)
             {
                 throw new ExpirationDateViolationException($"Expiration date is not provided");
             }
+
             if (CheckNewDates(manufactDate, expirationDate) == false)
             {
                 throw new ExpirationDateViolationException($"Manufactiondate > expiration date\n [{manufactDate} < {expirationDate}]");
@@ -76,9 +78,9 @@
         private static bool CheckNewDates(DateOnly? manufactDate, DateOnly? expirationDate)
         {
             return
-                manufactDate != null && expirationDate != null && manufactDate < expirationDate ||
-                manufactDate == null && expirationDate != null ||
-                expirationDate == null && manufactDate != null;
+                (manufactDate != null && expirationDate != null && manufactDate < expirationDate) ||
+                (manufactDate == null && expirationDate != null) ||
+                (expirationDate == null && manufactDate != null);
         }
 
         protected DateOnly? _manufactDate;

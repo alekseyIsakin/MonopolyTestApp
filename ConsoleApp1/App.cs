@@ -6,9 +6,13 @@ namespace ConsoleApp1
     {
         public static void Main()
         {
-            var pallets = new List<Pallet>();
             var rnd = new Random(0);
+
+            // Create [n] pallets with random properties
+            var pallets = new List<Pallet>();
             int n = 500;
+
+
             for (var i = 0; i < n; i++)
             {
                 var p = new Pallet(
@@ -20,6 +24,9 @@ namespace ConsoleApp1
                 var boxes = new List<Box>();
                 for (var j = 0; j < 2 + rnd.Next(8); j++)
                 {
+                    // Generate the date of manufacture of the box
+                    // or/and generate expiration date of the box
+
                     DateOnly? manuf = null;
                     DateOnly? expir = null;
                     double mnf_chance = rnd.NextDouble();
@@ -35,6 +42,7 @@ namespace ConsoleApp1
                         expir = expir?.AddDays(rnd.Next(20) * 5);
 
                     }
+
                     Box b = new Box(
                         width: 10,
                         length: 2 + rnd.Next(20),
@@ -43,15 +51,19 @@ namespace ConsoleApp1
                         manufactDate: manuf,
                         expirationDate: expir
                         );
+
+                    // Add a box to the pallete
                     p.AddBox(b);
                 }
                 pallets.Add(p);
-                Console.SetCursorPosition(0, 0);
-
             }
 
+            // Group pallets by expiration date
+            // sort by ascending expiration date
+            // then by weight
             var groups = Selector.GetOrganaizedPallets(pallets);
 
+            // Display groups 
             var sb = new StringBuilder();
             foreach (var group in groups)
             {
@@ -65,10 +77,12 @@ namespace ConsoleApp1
                     }
                 }
             }
-            var most_longest_pallets = Selector.GetLongestStored(pallets);
+
+            // Select 3 pallets with the box having the longest shelf life
+            var longest_shelf_life_pallets = Selector.GetPalletsWithLongestShelfLife(pallets, count: 3);
 
             sb.AppendLine();
-            foreach (var pallet in most_longest_pallets)
+            foreach (var pallet in longest_shelf_life_pallets)
             {
                 sb.AppendLine($"[{pallet.Id}] {pallet.ExpirationDates.Max()}, volume: {pallet.Volume}");
             }
