@@ -99,18 +99,40 @@ namespace TestProject2
             catch (ArgumentException) { }
         }
 
+        public static IEnumerable<object[]> DataPalletHeight => new List<object[]> {
+            new object[] { 16, 3, 1, 4, 6, 2 },
+            new object[] { 1, 1 },
+            new object[] { 36, 5, 1, 10, 20 },
+        };
+
         [Theory]
-        [InlineData(16, 3, 1, 4, 6, 2)]
-        [InlineData(1, 1)]
-        [InlineData(36, 5, 1, 10, 20)]
+        [MemberData(nameof(DataPalletHeight))]
         public void TestPalletHeight(int expected, int pallet_h, params int[] height)
         {
-            var p1 = new Pallet(1, 1, pallet_h);
+            var p1 = CreatePallet(height: pallet_h); 
             foreach (int h in height)
             {
-                p1.AddBox(new Box(1, 1, h, 1, DateOnly.MinValue, DateOnly.MaxValue));
+                p1.AddBox(CreateBoxWrapper(height: h));
             }
             Assert.Equal(expected, p1.Heigth);
+        }
+
+        public static IEnumerable<object[]> DataPalletWeight => new List<object[]> {
+            new object[] { 46, 3, 1, 4, 6, 2 },
+            new object[] { 30 },
+            new object[] { 66, 5, 1, 10, 20 },
+        };
+
+        [Theory]
+        [MemberData(nameof(DataPalletWeight))]
+        public void TestPalletWeight(int expected_weight, params int[] weight)
+        {
+            var p1 = CreatePallet();
+            foreach (int w in weight)
+            {
+                p1.AddBox(CreateBoxWrapper(weight: w));
+            }
+            Assert.Equal(expected_weight, p1.Weight);
         }
 
         public static IEnumerable<object[]> DataAddRemoveBox => new List<object[]> {
