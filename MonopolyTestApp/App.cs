@@ -6,6 +6,7 @@ namespace ConsoleApp1
     {
         public static void Main()
         {
+            //
             var rnd = new Random(0);
 
             // Create [n] pallets with random properties

@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ConsoleApp1\MonopolyTextApp.csproj" />
+    <ProjectReference Include="..\MonopolyTestApp\MonopolyTestApp.csproj" />
   </ItemGroup>
 
 </Project>
